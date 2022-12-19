@@ -1,6 +1,6 @@
 diff --color -Naur a/src/Hooks.php b/src/Hooks.php
 --- a/src/Hooks.php	2022-01-02 22:01:18.000000000 +0800
-+++ b/src/Hooks.php	2022-12-19 07:57:13.779178137 +0800
++++ b/src/Hooks.php	2022-12-19 17:16:45.055440038 +0800
 @@ -204,7 +204,6 @@
  
  		// Matomo script
@@ -23,8 +23,9 @@ diff --color -Naur a/src/Hooks.php b/src/Hooks.php
 -<!-- End Matomo Code -->
 -
 -<!-- Matomo Image Tracker -->
- <noscript><img src="{$protocol}://{$matomoURL}/piwik.php?idsite={$idSite}&rec=1{$urlTrackingSearch}" style="border:0" alt="" /></noscript>
+-<noscript><img src="{$protocol}://{$matomoURL}/piwik.php?idsite={$idSite}&rec=1{$urlTrackingSearch}" style="border:0" alt="" /></noscript>
 -<!-- End Matomo -->
++<noscript><img src="{$protocol}://{$matomoURL}/kazuha.php?yoimiya={$idSite}&rec=1{$urlTrackingSearch}" style="border:0;" alt="" /></noscript>
  MATOMO;
  
  		return $script;
