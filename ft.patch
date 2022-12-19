@@ -1,0 +1,135 @@
+diff --color -Naur a/assets/common.css b/assets/common.css
+--- a/assets/common.css	2022-12-19 08:00:57.618018483 +0800
++++ b/assets/common.css	2022-12-19 08:25:44.574887077 +0800
+@@ -123,6 +123,7 @@
+     width: 0px;
+     margin: 4px 0;
+     opacity: 0;
++    visibility: hidden;
+     background-image: url(preview.svg);
+ }
+ 
+@@ -134,6 +135,7 @@
+     width: 24px;
+     margin: 4px;
+     opacity: 1;
++    visibility: visible;
+ }
+ 
+ .comment-reply::before, .comment-like::before, .comment-report::before, .comment-delete::before, .comment-recover::before {
+diff --color -Naur a/extension.json b/extension.json
+--- a/extension.json	2022-12-19 08:00:57.619018496 +0800
++++ b/extension.json	2022-12-19 08:01:07.674146088 +0800
+@@ -6,6 +6,9 @@
+   "version": "1.3.2",
+   "license-name": "BSD-2-Clause",
+   "type": "specialpage",
++  "requires": {
++    "MediaWiki": ">= 1.34.0"
++  },
+   "ExtensionMessagesFiles": {
+     "FlowThreadAlias": "FlowThread.alias.php"
+   },
+diff --color -Naur a/i18n/en.json b/i18n/en.json
+--- a/i18n/en.json	2022-12-19 08:00:57.619018496 +0800
++++ b/i18n/en.json	2022-12-19 08:01:07.677146126 +0800
+@@ -2,7 +2,7 @@
+   "flowthread_desc": "This extension provides a thread-like commenting system",
+   "log-name-comments": "Comments log",
+   "log-description-comments": "This page shows administrative activities related to comments.",
+-  "log-show-hide-comments": "Comment log",
++  "logeventslist-comments-log": "Comment log",
+   "logentry-comments-delete": "$1 deleted a comment by $4 from $3.",
+   "logentry-comments-recover": "$1 recovered a comment by $4 from $3.",
+   "logentry-comments-erase": "$1 permantly deleted a comment by $4 from $3, along with its $5 follow-ups.",
+@@ -90,6 +90,7 @@
+   "flowthread-reply-anonymous": "@$1 ",
+ 
+   "apihelp-flowthread-description": "FlowThread action API",
++  "apihelp-flowthread-summary": "FlowThread action API",
+   "apihelp-flowthread-param-type": "Type of action to take. (Must be one of list, like, dislike, report, delete, recover, erase, markchecked or post)",
+   "apihelp-flowthread-param-pageid": "ID of the page to comment on (type = post), or to list comment (type = list). Required when type is post and list.",
+   "apihelp-flowthread-param-postid": "ID of the post to act on (type = like, dislike, report, delete, recover, erase, markchecked), or to reply (type = post). Required in the former case.",
+diff --color -Naur a/i18n/zh-hans.json b/i18n/zh-hans.json
+--- a/i18n/zh-hans.json	2022-12-19 08:00:57.619018496 +0800
++++ b/i18n/zh-hans.json	2022-12-19 08:01:07.678146138 +0800
+@@ -2,7 +2,7 @@
+   "flowthread_desc": "这个插件提供了类似论坛帖子的评论系统",
+   "log-name-comments": "评论日志",
+   "log-description-comments": "此页面显示评论管理的日志。",
+-  "log-show-hide-comments": "$1评论日志",
++  "logeventslist-comments-log": "评论日志",
+   "logentry-comments-delete": "$1从页面$3中删除了$4的评论",
+   "logentry-comments-recover": "$1从页面$3中恢复了$4的评论",
+   "logentry-comments-erase": "$1从页面$3中永久删除了$4的评论及$5条子评论",
+@@ -87,6 +87,7 @@
+   "flowthread-blacklist": "# 在这个列表中的文本会被禁止在评论中出现。\n# 语法如下：\n#* 任何由\"#\"字符开头至行尾的内容都算作注释\n#* 任何非空白行都是匹配文本的正则表达式片段\n #<!-- 请完整地保留此行 --><pre>\n\n #</pre><!-- 请完整地保留此行 -->",
+ 
+   "apihelp-flowthread-description": "FlowThread操作API",
++  "apihelp-flowthread-summary": "FlowThread操作API",
+   "apihelp-flowthread-param-type": "需要进行的操作。（必须为 list, like, dislike, report, delete, recover, erase, markchecked 或 post 其中一项）",
+   "apihelp-flowthread-param-pageid": "要进行评论 (type = post)，或者要列举评论 (type = list) 的页面的ID。对于 post 和 list 操作来说是必须的。",
+   "apihelp-flowthread-param-postid": "要进行操作 (type = like, dislike, report, delete, recover, erase, markchecked)，或者要回复 (type = post) 的评论的ID。在前一种情况下是必须的。",
+diff --color -Naur a/includes/Post.php b/includes/Post.php
+--- a/includes/Post.php	2022-12-19 08:00:57.620018508 +0800
++++ b/includes/Post.php	2022-12-19 08:26:11.356226919 +0800
+@@ -159,7 +159,7 @@
+ 			return false;
+ 		}
+ 		/* Prevent cross-site request forgeries */
+-		if (wfReadOnly()) {
++		if (MediaWikiServices::getInstance()->getReadOnlyMode()->isReadOnly()) {
+ 			return false;
+ 		}
+ 		return true;
+@@ -175,7 +175,7 @@
+ 			throw new \Exception("Current user cannot post comment");
+ 		}
+ 		/* Prevent cross-site request forgeries */
+-		if (wfReadOnly()) {
++		if (MediaWikiServices::getInstance()->getReadOnlyMode()->isReadOnly()) {
+ 			throw new \Exception("Site in readonly mode");
+ 		}
+ 	}
+diff --color -Naur a/includes/Query.php b/includes/Query.php
+--- a/includes/Query.php	2022-12-19 08:00:57.620018508 +0800
++++ b/includes/Query.php	2022-12-19 08:24:24.419869948 +0800
+@@ -35,9 +35,6 @@
+ 		if ($this->limit !== -1) {
+ 			$options['LIMIT'] = $this->limit;
+ 		}
+-		if ($this->threadMode) {
+-			$options[] = 'SQL_CALC_FOUND_ROWS';
+-		}
+ 
+ 		$cond = [];
+ 		if ($this->pageid) {
+@@ -89,8 +86,14 @@
+ 		}
+ 
+ 		if ($this->threadMode) {
+-			$this->totalCount = intval($dbr->query('select FOUND_ROWS() as row')->fetchObject()->row);
+-
++			$this->totalCount = $dbr->newSelectQueryBuilder()
++				->select('COUNT(*) as count')
++				->from('FlowThread')
++				->where($cond)
++				->caller(__METHOD__)
++				->fetchResultSet()
++				->fetchObject()
++				->count;
+ 			// Recursively get all children post list
+ 			// This is not really resource consuming as you might think, as we use IN to boost it up
+ 			while ($sqlPart) {
+diff --color -Naur a/special/Control.php b/special/Control.php
+--- a/special/Control.php	2022-12-19 08:00:57.620018508 +0800
++++ b/special/Control.php	2022-12-19 08:01:07.673146075 +0800
+@@ -223,7 +223,7 @@
+ 				'flowthread_ctrl_status' => $status,
+ 			];
+ 			$dbw->upsert('FlowThreadControl', $values, [
+-				'flowthread_ctrl_pageid' => $id,
++				'flowthread_ctrl_pageid'
+ 			], $values);
+ 		}
+ 	}

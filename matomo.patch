@@ -1,0 +1,30 @@
+diff --color -Naur a/src/Hooks.php b/src/Hooks.php
+--- a/src/Hooks.php	2022-01-02 22:01:18.000000000 +0800
++++ b/src/Hooks.php	2022-12-19 07:57:13.779178137 +0800
+@@ -204,7 +204,6 @@
+ 
+ 		// Matomo script
+ 		$script = <<<MATOMO
+-<!-- Matomo -->
+ <script type="text/javascript">
+   var _paq = _paq || [];{$disableCookiesStr}{$customJs}
+   _paq.push(["{$trackingType}"{$jsTrackingSearch}]);
+@@ -212,17 +211,13 @@
+ 
+   (function() {
+     var u = (("https:" == document.location.protocol) ? "https" : "http") + "://"{$jsMatomoURLCommon};
+-    _paq.push(["setTrackerUrl", u{$jsMatomoURL}+"piwik.php"]);
++    _paq.push(["setTrackerUrl", u{$jsMatomoURL}+"kazuha.php"]);
+     _paq.push(["setSiteId", "{$idSite}"]);
+     var d=document, g=d.createElement("script"), s=d.getElementsByTagName("script")[0]; g.type="text/javascript";
+     g.defer=true; g.async=true; g.src=u+{$jsMatomoJSFileURL}; s.parentNode.insertBefore(g,s);
+   })();
+ </script>
+-<!-- End Matomo Code -->
+-
+-<!-- Matomo Image Tracker -->
+ <noscript><img src="{$protocol}://{$matomoURL}/piwik.php?idsite={$idSite}&rec=1{$urlTrackingSearch}" style="border:0" alt="" /></noscript>
+-<!-- End Matomo -->
+ MATOMO;
+ 
+ 		return $script;
