@@ -1,0 +1,13 @@
+diff --git a/includes/PopupsContext.php b/includes/PopupsContext.php
+index 3202d77..8bad63b 100644
+--- a/includes/PopupsContext.php
++++ b/includes/PopupsContext.php
+@@ -203,7 +203,7 @@ class PopupsContext {
+ 	 */
+ 	public function shouldSendModuleToUser( \User $user ) {
+ 		if ( !$user->isRegistered() ) {
+-			return true;
++			return false;
+ 		}
+ 
+ 		$shouldLoadPagePreviews = $this->userOptionsLookup->getBoolOption(

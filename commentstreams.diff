@@ -1,0 +1,495 @@
+diff --git a/extension.json b/extension.json
+index b12040e..5b7f5c4 100644
+--- a/extension.json
++++ b/extension.json
+@@ -81,6 +81,7 @@
+ 				"commentstreams-api-error-unwatch-notloggedin",
+ 				"commentstreams-api-error-unwatch-nounwatchreply",
+ 				"commentstreams-api-error-unwatch",
++				"commentstreams-api-error-post-spam",
+ 				"commentstreams-validation-error-nocommenttitle",
+ 				"commentstreams-validation-error-nocommenttext",
+ 				"commentstreams-buttontext-add",
+@@ -95,7 +96,7 @@
+ 				"commentstreams-buttontooltip-collapse",
+ 				"commentstreams-buttontooltip-expand",
+ 				"commentstreams-buttontooltip-upvote",
+-				"commentstreams-buttontooltip-downvote",
++				"commentstreams-buttontooltip-report",
+ 				"commentstreams-buttontooltip-watch",
+ 				"commentstreams-buttontooltip-unwatch",
+ 				"commentstreams-buttontooltip-submit",
+@@ -112,7 +113,8 @@
+ 				"commentstreams-datetext-moderated",
+ 				"commentstreams-title-field-placeholder",
+ 				"commentstreams-body-field-placeholder",
+-				"commentstreams-ve-conversion-error"
++				"commentstreams-ve-conversion-error",
++				"commentstreams-no-title"
+ 			]
+ 		},
+ 		"ext.CommentStreamsAllComments": {
+@@ -256,6 +258,7 @@
+ 		"CommentStreamsShowLabels": true,
+ 		"CommentStreamsEnableVoting": false,
+ 		"CommentStreamsInitiallyCollapsedNamespaces": [],
++		"CommentStreamsSpamRegex": [],
+ 		"CommentStreamsUserRealNamePropertyName": null,
+ 		"CommentStreamsUserAvatarPropertyName": null,
+ 		"CommentStreamsEnableSearch": true,
+diff --git a/i18n/en.json b/i18n/en.json
+index de80b41..2c11cb1 100644
+--- a/i18n/en.json
++++ b/i18n/en.json
+@@ -102,6 +102,7 @@
+ 	"commentstreams-api-error-unwatch-notloggedin": "You must be logged in to unwatch a comment.",
+ 	"commentstreams-api-error-unwatch-nounwatchreply": "Unwatching replies is not allowed.",
+ 	"commentstreams-api-error-unwatch": "Error unwatching comment.",
++	"commentstreams-api-error-post-spam": "The text you wanted to comment was blocked by the spam filter.",
+ 	"commentstreams-validation-error-nocommenttitle": "You must enter a comment title.",
+ 	"commentstreams-validation-error-nocommenttext": "You must enter comment text.",
+ 	"commentstreams-buttontext-add": "Add comment",
+@@ -117,6 +118,7 @@
+ 	"commentstreams-buttontooltip-expand": "expand",
+ 	"commentstreams-buttontooltip-upvote": "up vote",
+ 	"commentstreams-buttontooltip-downvote": "down vote",
++	"commentstreams-buttontooltip-report": "report",
+ 	"commentstreams-buttontooltip-watch": "watch",
+ 	"commentstreams-buttontooltip-unwatch": "unwatch",
+ 	"commentstreams-buttontooltip-submit": "submit",
+@@ -133,6 +135,7 @@
+ 	"commentstreams-datetext-moderated": "moderated",
+ 	"commentstreams-title-field-placeholder": "Enter title...",
+ 	"commentstreams-body-field-placeholder": "Enter new comment text...",
++	"commentstreams-no-title":"No title",
+ 	"echo-category-title-commentstreams-notification-category": "New comments and replies",
+ 	"notification-header-commentstreams-comment-on-watched-page": "$1 {{GENDER:$4|commented}} \"<i>$2</i>\" on page \"<i>$3</i>\", which {{GENDER:$6|you}} are watching.",
+ 	"notification-header-commentstreams-reply-on-watched-page": "$1 {{GENDER:$4|replied}} to comment \"<i>$2</i>\" on page \"<i>$3</i>\", which {{GENDER:$6|you}} are watching.",
+diff --git a/i18n/zh-hans.json b/i18n/zh-hans.json
+index cd39f22..b121177 100644
+--- a/i18n/zh-hans.json
++++ b/i18n/zh-hans.json
+@@ -80,6 +80,7 @@
+ 	"commentstreams-api-error-watch": "监视评论时出错。",
+ 	"commentstreams-api-error-unwatch-notloggedin": "您必须登录以取消监视评论。",
+ 	"commentstreams-api-error-unwatch-nounwatchreply": "不允许取消监视回复。",
++	"commentstreams-api-error-post-spam":"您要评论的文字被垃圾信息过滤器拦截。",
+ 	"commentstreams-api-error-unwatch": "取消监视评论时出错。",
+ 	"commentstreams-validation-error-nocommenttitle": "您必须输入评论标题。",
+ 	"commentstreams-validation-error-nocommenttext": "您必须输入评论文本。",
+@@ -96,6 +97,7 @@
+ 	"commentstreams-buttontooltip-expand": "展开",
+ 	"commentstreams-buttontooltip-upvote": "赞同",
+ 	"commentstreams-buttontooltip-downvote": "否决",
++	"commentstreams-buttontooltip-report": "举报",
+ 	"commentstreams-buttontooltip-watch": "监视",
+ 	"commentstreams-buttontooltip-unwatch": "取消监视",
+ 	"commentstreams-buttontooltip-submit": "提交",
+@@ -112,6 +114,7 @@
+ 	"commentstreams-datetext-moderated": "已节制",
+ 	"commentstreams-title-field-placeholder": "输入标题...",
+ 	"commentstreams-body-field-placeholder": "输入新评论文本...",
++	"commentstreams-no-title":"无标题",
+ 	"echo-category-title-commentstreams-notification-category": "新评论和回复",
+ 	"notification-header-commentstreams-comment-on-watched-page": "$1在页面“<i>$3</i>”上{{GENDER:$4|评论}}了“<i>$2</i>”，这是{{GENDER:$6|您}}监视的评论。",
+ 	"notification-header-commentstreams-reply-on-watched-page": "$1在页面“<i>$3</i>”上{{GENDER:$4|回复}}了“<i>$2</i>”，这是{{GENDER:$6|您}}监视的页面。",
+diff --git a/includes/AbstractComment.php b/includes/AbstractComment.php
+index 671730d..d398de1 100644
+--- a/includes/AbstractComment.php
++++ b/includes/AbstractComment.php
+@@ -186,9 +186,9 @@ abstract class AbstractComment {
+ 		$this->author = $firstRevision->getUser( RevisionRecord::RAW );
+ 		$this->setAvatar();
+ 		$this->lastEditor = $latestRevision->getUser( RevisionRecord::RAW );
+-		$this->creationTimestamp = MWTimestamp::getLocalInstance( $firstRevision->getTimestamp() );
++		$this->creationTimestamp = new MWTimestamp( $firstRevision->getTimestamp() );
+ 		if ( $firstRevision->getId() !== $latestRevision->getId() ) {
+-			$this->modificationTimestamp = MWTimestamp::getLocalInstance( $latestRevision->getTimestamp() );
++			$this->modificationTimestamp = new MWTimestamp( $latestRevision->getTimestamp() );
+ 		}
+ 	}
+ 
+diff --git a/includes/ApiCSDeleteComment.php b/includes/ApiCSDeleteComment.php
+index 516f33e..5ed5775 100644
+--- a/includes/ApiCSDeleteComment.php
++++ b/includes/ApiCSDeleteComment.php
+@@ -65,11 +65,7 @@ class ApiCSDeleteComment extends ApiCSCommentBase {
+ 
+ 		$replyCount = $this->comment->getNumReplies();
+ 
+-		if ( $user->getId() === $this->comment->getAuthor()->getId() && $replyCount === 0 ) {
+-			$action = 'cs-comment';
+-		} else {
+-			$action = 'cs-moderator-delete';
+-		}
++		$action = 'cs-moderator-delete';
+ 
+ 		if ( $replyCount > 0 ) {
+ 			if ( $this->moderatorFastDelete ) {
+diff --git a/includes/ApiCSDeleteReply.php b/includes/ApiCSDeleteReply.php
+index c3195ec..4214ebb 100644
+--- a/includes/ApiCSDeleteReply.php
++++ b/includes/ApiCSDeleteReply.php
+@@ -51,12 +51,7 @@ class ApiCSDeleteReply extends ApiCSReplyBase {
+ 		if ( $user->isAnon() ) {
+ 			$this->dieWithError( 'commentstreams-api-error-delete-notloggedin' );
+ 		}
+-
+-		if ( $user->getId() === $this->reply->getAuthor()->getId() ) {
+-			$action = 'cs-comment';
+-		} else {
+-			$action = 'cs-moderator-delete';
+-		}
++		$action = 'cs-moderator-delete';
+ 
+ 		$title = $this->reply->getTitle();
+ 		if ( !$this->getPermissionManager()->userCan( $action, $user, $title ) ) {
+@@ -68,11 +63,7 @@ class ApiCSDeleteReply extends ApiCSReplyBase {
+ 			$this->dieWithError( 'commentstreams-api-error-delete' );
+ 		}
+ 
+-		if ( $action === 'cs-comment' ) {
+-			$this->logAction( 'reply-delete' );
+-		} else {
+-			$this->logAction( 'reply-moderator-delete' );
+-		}
++		$this->logAction( 'reply-moderator-delete' );
+ 
+ 		return null;
+ 	}
+diff --git a/includes/ApiCSEditComment.php b/includes/ApiCSEditComment.php
+index 7d985fa..60506e9 100644
+--- a/includes/ApiCSEditComment.php
++++ b/includes/ApiCSEditComment.php
+@@ -61,7 +61,11 @@ class ApiCSEditComment extends ApiCSCommentBase {
+ 
+ 		$commentTitle = $this->getMain()->getVal( 'commenttitle' );
+ 		$wikitext = $this->getMain()->getVal( 'wikitext' );
+-
++		$regexlist = $this->getConfig()->get('CommentStreamsSpamRegex');
++		$spam=CommentStreamsUtils::checkRegex($wikitext,$regexlist);
++		if($spam){
++			$this->dieWithError( 'commentstreams-api-error-post-spam','spampost' );
++		}
+ 		$result = $this->comment->update( $commentTitle, $wikitext, $this->getUser() );
+ 		if ( !$result ) {
+ 			$this->dieWithError( 'commentstreams-api-error-edit' );
+diff --git a/includes/ApiCSEditReply.php b/includes/ApiCSEditReply.php
+index ac21118..2ef8992 100644
+--- a/includes/ApiCSEditReply.php
++++ b/includes/ApiCSEditReply.php
+@@ -60,7 +60,11 @@ class ApiCSEditReply extends ApiCSReplyBase {
+ 		}
+ 
+ 		$wikitext = $this->getMain()->getVal( 'wikitext' );
+-
++		$regexlist = $this->getConfig()->get('CommentStreamsSpamRegex');
++		$spam=CommentStreamsUtils::checkRegex($wikitext,$regexlist);
++		if($spam){
++			$this->dieWithError( 'commentstreams-api-error-post-spam','spampost' );
++		}
+ 		$result = $this->reply->update( $wikitext, $this->getUser() );
+ 		if ( !$result ) {
+ 			$this->dieWithError( 'commentstreams-api-error-edit' );
+diff --git a/includes/ApiCSPostComment.php b/includes/ApiCSPostComment.php
+index 4e3dd25..e05070b 100644
+--- a/includes/ApiCSPostComment.php
++++ b/includes/ApiCSPostComment.php
+@@ -75,10 +75,14 @@ class ApiCSPostComment extends ApiBase {
+ 		if ( !$this->getPermissionManager()->userHasRight( $this->getUser(), 'cs-comment' ) ) {
+ 			$this->dieWithError( 'commentstreams-api-error-post-permissions' );
+ 		}
+-
+ 		$associatedId = $this->getMain()->getVal( 'associatedid' );
+ 		$commentTitle = $this->getMain()->getVal( 'commenttitle' );
+ 		$wikitext = $this->getMain()->getVal( 'wikitext' );
++		$regexlist = $this->getConfig()->get('CommentStreamsSpamRegex');
++		$spam=CommentStreamsUtils::checkRegex($wikitext,$regexlist);
++		if($spam){
++			$this->dieWithError( 'commentstreams-api-error-post-spam','spampost' );
++		}
+ 		$commentBlockName = $this->getMain()->getVal( 'commentblockname' );
+ 
+ 		$associatedId = (int)$associatedId;
+diff --git a/includes/ApiCSPostReply.php b/includes/ApiCSPostReply.php
+index dee5e9d..33daa5a 100644
+--- a/includes/ApiCSPostReply.php
++++ b/includes/ApiCSPostReply.php
+@@ -78,7 +78,11 @@ class ApiCSPostReply extends ApiBase {
+ 
+ 		$parentId = $this->getMain()->getVal( 'parentid' );
+ 		$wikitext = $this->getMain()->getVal( 'wikitext' );
+-
++		$regexlist = $this->getConfig()->get('CommentStreamsSpamRegex');
++		$spam=CommentStreamsUtils::checkRegex($wikitext,$regexlist);
++		if($spam){
++			$this->dieWithError( 'commentstreams-api-error-post-spam','spampost' );
++		}
+ 		$parentId = (int)$parentId;
+ 		$parentPage = $this->wikiPageFactory->newFromId( $parentId );
+ 		if ( !$parentPage || !$parentPage->getTitle()->exists() ) {
+diff --git a/includes/CommentStreamsHandler.php b/includes/CommentStreamsHandler.php
+index 0b077f5..56d8fc5 100644
+--- a/includes/CommentStreamsHandler.php
++++ b/includes/CommentStreamsHandler.php
+@@ -277,7 +277,7 @@ class CommentStreamsHandler {
+ 		$sortedComments = $this->sortComments(
+ 			$comments,
+ 			$newestStreamsOnTop,
+-			$votingEnabled
++			false
+ 		);
+ 
+ 		foreach ( $sortedComments as $comment ) {
+diff --git a/includes/CommentStreamsUtils.php b/includes/CommentStreamsUtils.php
+index 95f02b3..59acbe3 100644
+--- a/includes/CommentStreamsUtils.php
++++ b/includes/CommentStreamsUtils.php
+@@ -68,4 +68,15 @@ class CommentStreamsUtils {
+ 		}
+ 		return null;
+ 	}
++
++	public static function checkRegex(string $str,array $patterns){
++		foreach ($patterns as $regex) {
++			$result=preg_match("/$regex/",$str);
++			if (!$result){
++				continue;
++			}
++			return true;
++		}
++		return false;
++	}
+ }
+diff --git a/includes/MainHooks.php b/includes/MainHooks.php
+index f364b7b..5ae2701 100644
+--- a/includes/MainHooks.php
++++ b/includes/MainHooks.php
+@@ -364,14 +364,6 @@ class MainHooks implements
+ 				}
+ 			}
+ 		}
+-		if ( !isset( $GLOBALS['wgGroupPermissions']['csmoderator']['cs-moderator-delete'] ) ) {
+-			$GLOBALS['wgGroupPermissions']['csmoderator']['cs-moderator-delete'] =
+-				true;
+-		}
+-		if ( !isset( $GLOBALS['wgGroupPermissions']['csmoderator']['cs-moderator-edit'] ) ) {
+-			$GLOBALS['wgGroupPermissions']['csmoderator']['cs-moderator-edit'] =
+-				false;
+-		}
+ 		$GLOBALS['wgAvailableRights'][] = 'cs-comment';
+ 		$GLOBALS['wgAvailableRights'][] = 'cs-moderator-edit';
+ 		$GLOBALS['wgAvailableRights'][] = 'cs-moderator-delete';
+diff --git a/includes/ServiceWiring.php b/includes/ServiceWiring.php
+index d3ddc2e..ca324a9 100644
+--- a/includes/ServiceWiring.php
++++ b/includes/ServiceWiring.php
+@@ -82,11 +82,6 @@ return [
+ 		},
+ 	'CommentStreamsSocialProfileInterface' =>
+ 		static function ( MediaWikiServices $services ): SocialProfileInterface {
+-			return new SocialProfileInterface(
+-				new ServiceOptions(
+-					SocialProfileInterface::CONSTRUCTOR_OPTIONS,
+-					$services->getMainConfig()
+-				)
+-			);
++			return new SocialProfileInterface();
+ 		},
+ ];
+diff --git a/includes/SocialProfileInterface.php b/includes/SocialProfileInterface.php
+index 5e1a6cd..4ab18d1 100644
+--- a/includes/SocialProfileInterface.php
++++ b/includes/SocialProfileInterface.php
+@@ -23,32 +23,22 @@ namespace MediaWiki\Extension\CommentStreams;
+ 
+ use ConfigException;
+ use MediaWiki\Config\ServiceOptions;
++use MediaWiki\Extension\Avatar\Avatar;
+ use MediaWiki\User\UserIdentity;
+ use wAvatar;
+ 
+ class SocialProfileInterface {
+-	public const CONSTRUCTOR_OPTIONS = [
+-		'UploadPath'
+-	];
+-
+ 	/**
+ 	 * @var bool
+ 	 */
+ 	private $isLoaded;
+ 
+-	/**
+-	 * @var string
+-	 */
+-	private $uploadPath;
+-
+ 	/**
+ 	 * @param ServiceOptions $options
+ 	 * @throws ConfigException
+ 	 */
+-	public function __construct( ServiceOptions $options ) {
+-		$options->assertRequiredOptions( self::CONSTRUCTOR_OPTIONS );
+-		$this->isLoaded = class_exists( \wAvatar::class );
+-		$this->uploadPath = $options->get( 'UploadPath' );
++	public function __construct() {
++		$this->isLoaded = class_exists( Avatar::class );
+ 	}
+ 
+ 	/**
+@@ -59,7 +49,6 @@ class SocialProfileInterface {
+ 		if ( !$this->isLoaded ) {
+ 			return null;
+ 		}
+-		$avatar = new wAvatar( $user->getId(), 'l' );
+-		return $this->uploadPath . '/avatars/' . $avatar->getAvatarImage();
++		return Avatar::getLinkFor($user->getName());
+ 	}
+ }
+diff --git a/resources/Block.js b/resources/Block.js
+index 8524296..2389b0b 100644
+--- a/resources/Block.js
++++ b/resources/Block.js
+@@ -285,8 +285,7 @@ module.exports = ( function () {
+ 			if ( this.$titleField !== null ) {
+ 				commentTitle = this.$titleField.val();
+ 				if ( commentTitle === null || commentTitle.trim() === '' ) {
+-					this.reportError( 'commentstreams-validation-error-nocommenttitle' );
+-					return;
++					commentTitle = mw.msg('commentstreams-no-title')
+ 				}
+ 			}
+ 		} else {
+diff --git a/resources/CommentStreams.css b/resources/CommentStreams.css
+index 01c5199..17d9729 100644
+--- a/resources/CommentStreams.css
++++ b/resources/CommentStreams.css
+@@ -105,6 +105,9 @@
+ 	position: relative;
+ 	margin-left: -5px;
+ }
++.cs-vote-down-count {
++	display: none;
++}
+ 
+ .cs-comment-body {
+ 	margin-bottom: 5px;
+diff --git a/resources/CommentStreams.js b/resources/CommentStreams.js
+index c38ec87..a0f0439 100644
+--- a/resources/CommentStreams.js
++++ b/resources/CommentStreams.js
+@@ -64,7 +64,7 @@ const CommentStreams = ( function () {
+ 
+ 		setupDivs: function ( env ) {
+ 			const self = this;
+-
++			$('#bodyContent').append($('<div>').attr('id','cs-anchor'))
+ 			const Block = require( './Block.js' );
+ 			const Querier = require( './Querier.js' );
+ 			const querier = new Querier();
+@@ -77,7 +77,7 @@ const CommentStreams = ( function () {
+ 				if ( blockName === undefined ) {
+ 					$blockDiv
+ 						.detach()
+-						.insertAfter( '#catlinks' );
++						.insertAfter( '#cs-anchor' );
+ 					self.defaultblock = new Block( self, env, querier, null, $blockDiv );
+ 				} else {
+ 					self.namedblocks[ blockName ] =
+@@ -88,7 +88,7 @@ const CommentStreams = ( function () {
+ 			if ( $blocks.length === 0 ) {
+ 				const $mainDiv = $( '<div>' )
+ 					.addClass( 'cs-comments' )
+-					.insertAfter( '#catlinks' );
++					.insertAfter( '#cs-anchor' );
+ 				this.defaultblock = new Block( this, env, querier, null, $mainDiv );
+ 			}
+ 		},
+diff --git a/resources/Querier.js b/resources/Querier.js
+index 47f64ee..7ac2864 100644
+--- a/resources/Querier.js
++++ b/resources/Querier.js
+@@ -236,6 +236,10 @@ module.exports = ( function () {
+ 			reply( {
+ 				error: 'commentstreams-api-error-notloggedin'
+ 			} );
++		} else if ( error.error.code === 'spampost' ) {
++			reply( {
++				error: 'commentstreams-api-error-post-spam'
++			} );
+ 		} else {
+ 		// These types of errors should never happen, but in the case of install errors,
+ 		// syntax errors during development, or conflicting extensions, they could happen.
+diff --git a/resources/Stream.js b/resources/Stream.js
+index 5a3bf36..a200a7c 100644
+--- a/resources/Stream.js
++++ b/resources/Stream.js
+@@ -267,8 +267,8 @@ module.exports = ( function () {
+ 		this.upButton.$element.append( this.$upCountSpan );
+ 
+ 		const downParams = {
+-			icon: 'downTriangle',
+-			title: mw.msg( 'commentstreams-buttontooltip-downvote' ),
++			icon: 'flag',
++			title: mw.msg( 'commentstreams-buttontooltip-report' ),
+ 			classes: [ 'cs-vote-down-button' ],
+ 			framed: false
+ 		};
+@@ -368,8 +368,8 @@
+ 						}
+ 					}
+ 				}
+-				const voteDiff = upCount - downCount;
+-				self.adjustCommentOrder( voteDiff, upCount, createdTimestamp );
++				// const voteDiff = upCount - downCount;
++				// self.adjustCommentOrder( voteDiff, upCount, createdTimestamp );
+ 			} else {
+ 				self.reportError( result.error );
+ 			}
+@@ -473,7 +473,7 @@ module.exports = ( function () {
+ 
+ 	Stream.prototype.canDelete = function ( commentData ) {
+ 		return ( this.env.isLoggedIn &&
+-		( this.env.username === commentData.username || this.env.moderatorDelete ) &&
++		( this.env.moderatorDelete ) &&
+ 		( commentData.numreplies === 0 || commentData.numreplies === undefined || this.env.moderatorFastDelete ) );
+ 	};
+ 
+@@ -483,12 +483,7 @@ module.exports = ( function () {
+ 			data: 'edit'
+ 		};
+ 
+-		if ( this.env.username !== username ) {
+-			params.label = mw.msg( 'commentstreams-buttontooltip-moderator-edit' );
+-		} else {
+-			params.label = mw.msg( 'commentstreams-buttontooltip-edit' );
+-		}
+-
++		params.label = mw.msg( 'commentstreams-buttontooltip-edit' );
+ 		return new OO.ui.MenuOptionWidget( params );
+ 	};
+ 
+@@ -499,12 +494,7 @@ module.exports = ( function () {
+ 			data: 'delete'
+ 		};
+ 
+-		if ( this.env.username !== username ) {
+-			params.label = mw.msg( 'commentstreams-buttontooltip-moderator-delete' );
+-		} else {
+-			params.label = mw.msg( 'commentstreams-buttontooltip-delete' );
+-		}
+-
++		params.label = mw.msg( 'commentstreams-buttontooltip-delete' );
+ 		return new OO.ui.MenuOptionWidget( params );
+ 	};
+ 
+@@ -986,9 +976,7 @@ module.exports = ( function () {
+ 		if ( isStream ) {
+ 			commentTitle = self.block.$titleField.val();
+ 			if ( commentTitle === null || commentTitle.trim() === '' ) {
+-				self.reportError(
+-					'commentstreams-validation-error-nocommenttitle' );
+-				return;
++				commentTitle = mw.msg('commentstreams-no-title')
+ 			}
+ 		}
